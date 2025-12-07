@@ -2,10 +2,19 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import auth, leaderboard, live
 
+from contextlib import asynccontextmanager
+from .database import init_db
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
+
 app = FastAPI(
     title="Serpent Showdown API",
     description="API for the Serpent Showdown game",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Configure CORS
