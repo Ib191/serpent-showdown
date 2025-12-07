@@ -38,11 +38,11 @@ export default function WatchMode({ onBack }: WatchModeProps) {
 
     const animate = (timestamp: number) => {
       if (timestamp - lastUpdateRef.current >= updateInterval) {
-        const updatedPlayer = api.live.simulateMovement(selectedPlayer.id, 20);
+        const updatedPlayer = api.live.simulateMovement(selectedPlayer, 20);
         if (updatedPlayer) {
           setSelectedPlayer({ ...updatedPlayer });
           // Also update in the players list
-          setPlayers(prev => prev.map(p => 
+          setPlayers(prev => prev.map(p =>
             p.id === updatedPlayer.id ? updatedPlayer : p
           ));
         }

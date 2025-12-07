@@ -1,0 +1,315 @@
+openapi: 3.0.0
+info:
+  title: Serpent Showdown API
+  version: 1.0.0
+  description: API for the Serpent Showdown game, including auth, leaderboard, and live player features.
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+paths:
+  /auth/login:
+    post:
+      summary: Login user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCredentials'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseUser'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseError'
+
+  /auth/signup:
+    post:
+      summary: Register new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCredentials'
+      responses:
+        '200':
+          description: Successful signup
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseUser'
+        '400':
+          description: Registration failed (e.g. email exists)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseError'
+
+  /auth/logout:
+    post:
+      summary: Logout user
+      tags: [Auth]
+      responses:
+        '200':
+          description: Successful logout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseVoid'
+
+  /auth/me:
+    get:
+      summary: Get current user
+      tags: [Auth]
+      responses:
+        '200':
+          description: Current user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseUser'
+
+  /leaderboard:
+    get:
+      summary: Get leaderboard entries
+      tags: [Leaderboard]
+      parameters:
+        - in: query
+          name: mode
+          schema:
+            $ref: '#/components/schemas/GameMode'
+          required: false
+          description: Filter by game mode
+      responses:
+        '200':
+          description: List of leaderboard entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseLeaderboard'
+    post:
+      summary: Submit score
+      tags: [Leaderboard]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                score:
+                  type: integer
+                mode:
+                  $ref: '#/components/schemas/GameMode'
+              required: [score, mode]
+      responses:
+        '200':
+          description: Score submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseLeaderboardEntry'
+        '401':
+          description: Not authenticated
+
+  /live/players:
+    get:
+      summary: Get active live players
+      tags: [Live]
+      responses:
+        '200':
+          description: List of active players
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseLivePlayers'
+
+  /live/players/{playerId}:
+    get:
+      summary: Get specific player stream info
+      tags: [Live]
+      parameters:
+        - in: path
+          name: playerId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Player details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseLivePlayer'
+        '404':
+          description: Player not found
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, username, email, createdAt]
+
+    AuthCredentials:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        username:
+          type: string
+      required: [email, password]
+
+    GameMode:
+      type: string
+      enum: [walls, pass-through]
+
+    LeaderboardEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        rank:
+          type: integer
+        username:
+          type: string
+        score:
+          type: integer
+        mode:
+          $ref: '#/components/schemas/GameMode'
+        date:
+          type: string
+          format: date
+      required: [id, rank, username, score, mode, date]
+
+    Position:
+      type: object
+      properties:
+        x:
+          type: integer
+        y:
+          type: integer
+      required: [x, y]
+
+    Direction:
+      type: string
+      enum: [UP, DOWN, LEFT, RIGHT]
+
+    LivePlayer:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        score:
+          type: integer
+        mode:
+          $ref: '#/components/schemas/GameMode'
+        snake:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+        food:
+          $ref: '#/components/schemas/Position'
+        direction:
+          $ref: '#/components/schemas/Direction'
+        viewers:
+          type: integer
+      required: [id, username, score, mode, snake, food, direction, viewers]
+
+    ApiResponseUser:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/User'
+        error:
+          type: string
+
+    ApiResponseLeaderboard:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaderboardEntry'
+        error:
+          type: string
+
+    ApiResponseLeaderboardEntry:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/LeaderboardEntry'
+        error:
+          type: string
+
+    ApiResponseLivePlayers:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/LivePlayer'
+        error:
+          type: string
+
+    ApiResponseLivePlayer:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/LivePlayer'
+        error:
+          type: string
+
+    ApiResponseVoid:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          nullable: true
+        error:
+          type: string
+
+    ApiResponseError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        error:
+          type: string
