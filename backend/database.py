@@ -8,6 +8,12 @@ from datetime import datetime
 # Database URL
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./serpent.db")
 
+# Convert postgres:// to postgresql+asyncpg:// for async engine
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+
 # Create Async Engine
 engine = create_async_engine(DATABASE_URL, echo=True)
 
