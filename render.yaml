@@ -2,7 +2,6 @@ services:
   - type: web
     name: serpent-showdown
     env: docker
-    dockerFilePath: Dockerfile.deploy
     plan: free
     envVars:
       - key: DATABASE_URL
