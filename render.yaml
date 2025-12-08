@@ -5,6 +5,13 @@ services:
     plan: free
     envVars:
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: serpent-db
+          property: connectionString
       - key: STATIC_DIR
         value: /app/static
+
+databases:
+  - name: serpent-db
+    databaseName: serpent_showdown
+    plan: starter
