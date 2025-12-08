@@ -12,7 +12,7 @@ class UserDB(Base):
     username = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 class LeaderboardDB(Base):
     __tablename__ = "leaderboard"
