@@ -9,7 +9,8 @@ import type {
   Direction,
 } from '@/types';
 
-const API_URL = 'http://localhost:8000';
+// Use environment variable for API URL, default to empty string for production (relative URLs)
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 // Helper for making API requests
 async function request<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
