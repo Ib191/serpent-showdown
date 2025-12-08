@@ -1,0 +1,5 @@
+.venv
+__pycache__
+serpent.db
+.pytest_cache
+*.pyc
