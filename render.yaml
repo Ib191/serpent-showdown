@@ -14,4 +14,4 @@ services:
 databases:
   - name: serpent-db
     databaseName: serpent_showdown
-    plan: starter
+    plan: free
